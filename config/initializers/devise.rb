@@ -8,6 +8,23 @@
 #
 # Use this hook to configure devise mailer, warden hooks and so forth.
 # Many of these configuration options can be set straight in your model.
+
+class TurboFailureApp < Devise::FailureApp
+  def respond
+    if request_format == :turbo_stream
+      :redirect
+    else
+      super
+    end
+  end
+
+  def skip_format?
+    %w[html turbo_stream].include? request_format.to_us
+  end
+end
+
+
+
 Devise.setup do |config|
   # The secret key used by Devise. Devise uses this key to generate
   # random tokens. Changing this key will render invalid all existing
@@ -15,6 +32,12 @@ Devise.setup do |config|
   # Devise will use the `secret_key_base` as its `secret_key`
   # by default. You can change it below and use your own secret key.
   # config.secret_key = '6261158004463884916245311f4fccaedda58a72a005018cb8879c00e2a2b5027031b8fee1283ab83e2c6321c50846f37b09155297081087cc9d1b18b71c73b4'
+
+  config.parent_controller = "TurboDeviseController"
+  config.navigational_formats = ['*/*', :html, :turbo_stream]
+  config.warden do |manager|
+    manager.failure_app = TurboFailureApp
+  end
 
   # ==> Controller configuration
   # Configure the parent class to the devise controllers.
@@ -264,7 +287,12 @@ Devise.setup do |config|
   #
   # The "*/*" below is required to match Internet Explorer requests.
   # config.navigational_formats = ['*/*', :html]
-  config.navigational_formats = ['*/*', :html, :turbo_stream]
+
+
+  # fix undefined method `user_url' for Devise
+  # config.navigational_formats = ['*/*', :html, :turbo_stream]
+
+
 
   # The default HTTP method used to sign out a resource. Default is :delete.
   config.sign_out_via = :delete
