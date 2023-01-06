@@ -6,6 +6,8 @@
 #   movies = Movie.create([{ name: "Star Wars" }, { name: "Lord of the Rings" }])
 #   Character.create(name: "Luke", movie: movies.first)
 
+User.create(email: 'my_user@mail.com', password: 'password', password_confirmation: 'password')
+
 10.times do |t|
-  Post.create(title: "My Post №#{t}", body: "This is body for post №#{t}")
+  Post.create(title: "My Post №#{t}", body: "This is body for post №#{t}", user_id: User.first.id)
 end
